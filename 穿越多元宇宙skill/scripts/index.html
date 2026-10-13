@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<canvas id="c" width="1600" height="900"></canvas>
+<script src="hero.js"></script><script src="styles.js"></script><script src="engine.js"></script>
+<script>
+const ctx = document.getElementById('c').getContext('2d');
+function frame(t, q = 0.92) { renderAt(ctx, t); return ctx.canvas.toDataURL('image/jpeg', q); }
+(async () => { const cfg = await (await fetch('film.json?' + Date.now())).json(); window.FILM = build(cfg); await Promise.all([loadHero(cfg.hero), loadPlates()]);
+  if (location.hash === '#play') { const t0 = performance.now(); (function loop() { renderAt(ctx, (performance.now() - t0) / 1000 % FILM.DUR); requestAnimationFrame(loop); })(); }
+  window.LOADED = true; })();
+// 画风一览：所有画风 × 走路帧
+function styleSheet(pose = 'walk') { const ks = Object.keys(STYLES), cols = 7, cw = OW * 0.6, ch = OH * 0.6 + 28, cv = document.createElement('canvas'); cv.width = cols * cw; cv.height = Math.ceil(ks.length / cols) * ch; const g = cv.getContext('2d'); g.fillStyle = '#6b6f78'; g.fillRect(0, 0, cv.width, cv.height); g.font = '20px sans-serif'; g.fillStyle = '#fff'; g.imageSmoothingEnabled = false;
+  ks.forEach((k, i) => { const x = (i % cols) * cw, y = Math.floor(i / cols) * ch; g.drawImage(styled(k, pose, 0.25), x, y, OW * 0.6, OH * 0.6); g.fillText(k, x + 8, y + ch - 8); }); return cv.toDataURL('image/png'); }
+</script></body></html>
